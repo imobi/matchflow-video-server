@@ -31,6 +31,6 @@ module.exports = function(grunt) {
 
   grunt.loadNpmTasks('grunt-shell-spawn');
 
-  grunt.registerTask('run-maxflow', ['shell']);
+  grunt.registerTask('run-mf-video-server', ['shell']);
 
 };

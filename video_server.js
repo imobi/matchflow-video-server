@@ -17,10 +17,12 @@ var port = process.env.PORT || 3001;
 
 //Allow Cross Domain request (CORS)
 //Integrate this later: https://github.com/expressjs/cors and specify origins allowed for secutiry purposes
+
 app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next();
+	console.log("Running CORS middlesware");
+  	res.header("Access-Control-Allow-Origin", "*");
+  	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  	next();
 });
 
 //Set the directory path containing static files
@@ -43,6 +45,52 @@ mongoose.connect('mongodb://localhost/flowbase', function(err) {
     } else {
         console.log('Connection successful to MongoDB');
     }
+});
+
+//Collections required: 
+// 1. Project Credentials (username,password)
+// 2. Storage Access Tokens (unique token string, expiry date)
+// 3. Uploaded Videos (id, name, url)
+
+//Schema for collection
+var Schema = mongoose.Schema;
+
+var projectsSchema = new Schema({
+	username: String,
+	password: String,
+	date_created: {type: Date, default:Date.now}
+});
+
+var tokensSchema = new Schema({
+	token_string: String
+});
+
+var uploadedVideosSchema = new Schema({
+	name: String,
+	url: String,
+	date_created: {type: Date, default:Date.now}
+});
+
+//Create Mongoose models from Schemas
+var Projects = mongoose.model('Projects',projectsSchema);
+var Tokens = mongoose.model('Tokens',tokensSchema);
+var UploadedVideos = mongoose.model('UploadedVideos', uploadedVideosSchema);
+
+//Adding test token
+console.log("Adding test token...");
+Tokens.create({token_string:"hi"}, function (err) {
+	console.log(err,"done");
+});
+
+//Add new project auth details to projects collection
+app.use('/addProject', bodyParser.json(), function (request,response,next) {
+	console.log("Adding project to Node server...");
+	Projects.create({
+		username:request.body.pid,
+		password:request.body.password
+	}, function (err) {
+		response.send("Added details of project: PID "+request.body.pid + "Pw: "+ request.body.password);
+	});	
 });
 
 //Video Manager middleware

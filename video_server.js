@@ -52,7 +52,7 @@ mongoose.connect('mongodb://localhost/flowbase', function(err) {
 // 2. Storage Access Tokens (unique token string, expiry date)
 // 3. Uploaded Videos (id, name, url)
 
-//Schema for collection
+//Schema for collections
 var Schema = mongoose.Schema;
 
 var projectsSchema = new Schema({
@@ -62,7 +62,8 @@ var projectsSchema = new Schema({
 });
 
 var tokensSchema = new Schema({
-	token_string: String
+	token_string: String,
+	expiry_date: {type: Date}
 });
 
 var uploadedVideosSchema = new Schema({
@@ -77,9 +78,8 @@ var Tokens = mongoose.model('Tokens',tokensSchema);
 var UploadedVideos = mongoose.model('UploadedVideos', uploadedVideosSchema);
 
 //Adding test token
-console.log("Adding test token...");
 Tokens.create({token_string:"hi"}, function (err) {
-	console.log(err,"done");
+	console.log("Added test token");
 });
 
 //Add new project auth details to projects collection

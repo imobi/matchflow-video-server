@@ -5,3 +5,4 @@ runmongo.sh
 /public/Video Uploads
 /public/Videos Converted
 nbproject/
+server_config.js

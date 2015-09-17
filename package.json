@@ -1,15 +1,17 @@
 {
-  "name": "maxflow",
-  "version":"1.0.0",
-  "main": "server.js",
+  "name": "Matchflow_Video_Server",
+  "version": "1.0.0",
+  "main": "video_server.js",
   "dependencies": {
-    "body-parser": "~1.4.2",
-    "express": "~4.9",
+    "body-parser": "^1.4.3",
+    "connect-multiparty": "^2.0.0",
+    "express": "^3.21.2",
     "fluent-ffmpeg": "^2.0.0-rc3",
-    "method-override": "~2.0.2",
-    "mongodb": "^2.0.24",
-    "mongoose": "^4.0.0",
-    "multer": "^0.1.8"
+    "method-override": "^2.0.2",
+    "mongodb": "^2.0.43",
+    "mongoose": "^4.1.7",
+    "multer": "^1.0.3",
+    "multiparty": "^4.1.2"
   },
   "devDependencies": {
     "grunt": "^0.4.5",

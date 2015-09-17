@@ -26,10 +26,10 @@ app.use(function(req, res, next) {
 });
 
 //Set the directory path containing static files
-app.use(express.static(__dirname + '/public')); 
+//app.use(express.static(__dirname + '/public')); 
 
 // routes ==================================================
-require('./app/routes')(app); // configure our routes
+//app.route('./app/routes');
 
 // start app ===============================================
 // startup our app at http://localhost:3001
@@ -82,6 +82,12 @@ Tokens.create({token_string:"hi"}, function (err) {
 	console.log("Added test token");
 });
 
+//Adding a method to Date prototype
+Date.prototype.addHours= function(h){
+    this.setHours(this.getHours()+h);
+    return this;
+}
+
 //Add new project auth details to projects collection
 app.use('/addProject', bodyParser.json(), function (request,response,next) {
 	console.log("Adding project to Node server...");
@@ -91,6 +97,25 @@ app.use('/addProject', bodyParser.json(), function (request,response,next) {
 	}, function (err) {
 		response.send("Added details of project: PID "+request.body.pid + "Pw: "+ request.body.password);
 	});	
+});
+
+app.use('/generateToken', bodyParser.json(), function (request,response,next) {
+	//if the PID and password are valid then generate a new token
+	Projects.find({username:request.body.pid, password:request.body.password}, function (error, docs) {
+		if (!error && docs.length > 0) {
+			//generate token
+			var newToken = {
+				token_string: request.body.pid.split("").reverse().join("")+""+Math.random()*1000+request.body.password.split("").reverse.join(""),
+				token_expiry: Date.now.addHours(4)
+			};
+			console.log(newToken);
+			response.send(newToken);
+		}
+		else {
+			console.log("Invalid project authentication details.");
+		}
+	})
+
 });
 
 //Video Manager middleware
@@ -104,23 +129,23 @@ app.use('/fileName', bodyParser.json(),function (request,response,next) {
 	response.send("Done parsing file name:"+newFileName);
 });
 
-app.use('/upload',multer({ dest: './public/Video Uploads/',
+var videoStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/')
+  },
+  filename: function (req, file, cb) {
+    cb(null, req.body.video_name+".mp4")
+  }
+})
 
-rename: function (fieldname,filename,request) {
-    return newFileName;
- },
+var upload = multer({ storage: videoStorage })
 
-onFileUploadStart: function (file) {
-  console.log(file.originalname + ' is starting ...');
-},
+app.post('/upload', upload.single('file'), function (req, res, next) {
+	res.send(req.file.filename+" successfully uploaded!");
+	console.log(req.body);
+	console.log(req.file);
+});
 
-onFileUploadComplete: function (file,request,response) {
-  console.log(file.originalname + ' uploaded to  ' + file.path);
-  fileName = file.originalname;
-  uploadPath = file.path;
-  response.send([fileName,uploadPath]);
-}
-}));
 
 //Function gets the metadata (using ffprobe) of a video file passed to it, and then returns the metadata object
 app.use('/getVideoMetaData',bodyParser.json(), function (request,response,next) {
@@ -130,20 +155,6 @@ app.use('/getVideoMetaData',bodyParser.json(), function (request,response,next) 
 		response.send(metadata);	
 	}); 	
 });
-
-//Function to check if a folder exists, otherwise create it
-function ensureExists(path, mask, cb) {
-    if (typeof mask == 'function') { // allow the `mask` parameter to be optional
-        cb = mask;
-        mask = 0777;
-    }
-    fs.mkdir(path, mask, function(err) {
-        if (err) {
-            if (err.code == 'EEXIST') cb(null); // ignore the error if the folder already exists
-            else cb(err); // something else went wrong
-        } else cb(null); // successfully created folder
-    });
-}
 
 //Converts video using ffmpeg
 app.use('/convert',bodyParser.json(), function (request,response,next) {

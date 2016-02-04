@@ -1,0 +1,33 @@
+<head>
+    <title>matchflow-video-server</title>
+</head>
+
+<body>
+    <h1>I shouldn't have told you that...</h1>
+
+    {{> myForm}}
+    {{> imageView}}
+    <!--{{> hello}}-->
+</body>
+
+<!--<template name="hello">
+  <button>Click Me</button>
+  <p>You've pressed the button {{counter}} times.</p>
+</template>-->
+
+<template name="myForm">
+    <input type="file" name="imagefile" class="myFileInput" />
+</template>
+
+
+<template name="imageView">
+    <div class="imageView">
+        {{#each images}}
+        <div>
+            <a href="{{this.url}}" target="_blank">
+                <img src="{{this.url}}" alt="" class="thumbnail" />
+            </a>
+        </div>
+        {{/each}}
+    </div>
+</template>

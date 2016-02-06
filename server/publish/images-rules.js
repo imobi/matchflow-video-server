@@ -1,14 +1,18 @@
 Images.allow({
     insert: function (userId) {
+        console.log('Images > insert');
         return (userId ? true : false);
     },
     remove: function (userId) {
-        return (userId ? true : false);
+        console.log('Images > remove');
+        return (userId ? true : true);
     },
     download: function () {
+        console.log('Images > download');
         return true;
     },
     update: function (userId) {
+        console.log('Images > update');
         return (userId ? true : false);
     }
 });

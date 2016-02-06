@@ -26,3 +26,4 @@ simple:rest-json-error-handler
 simple:rest-accounts-password
 simple:authenticate-user-by-token
 simple:rest-bearer-token-parser
+cfs:http-methods

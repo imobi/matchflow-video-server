@@ -1,6 +1,6 @@
-Video.allow({
+Videos.allow({
     insert: function (userId, doc) {
-        console.log('Video > insert');
+        console.log('Videos > insert');
         if(userId) {
             return true;
         } else {
@@ -9,7 +9,7 @@ Video.allow({
     },
 
     remove: function (userId, doc){
-        console.log('Video > remove');
+        console.log('Videos > remove');
         if(userId) {
             return true;
         } else {
@@ -18,7 +18,7 @@ Video.allow({
     },
 
     update: function(userId, doc, fieldNames, modifier) {
-        console.log('Video > update');
+        console.log('Videos > update');
         if(userId) {
             return true;
         } else {
@@ -26,7 +26,7 @@ Video.allow({
         }
     },
     download: function(userId, doc) {
-        console.log('Video > download');
+        console.log('Videos > download');
         if(userId) {
             return true;
         } else {
@@ -35,6 +35,6 @@ Video.allow({
     }
 });
 
-Meteor.publish('video', function () {
-    return Video.find({});
+Meteor.publish('videos', function () {
+    return Videos.find({});
 });

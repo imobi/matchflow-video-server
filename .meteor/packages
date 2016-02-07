@@ -27,3 +27,5 @@ simple:rest-accounts-password
 simple:authenticate-user-by-token
 simple:rest-bearer-token-parser
 cfs:http-methods
+accounts-password
+alanning:roles

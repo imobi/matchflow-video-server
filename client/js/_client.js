@@ -1,5 +1,5 @@
 Meteor.subscribe("images");
-Meteor.subscribe("video");
+Meteor.subscribe("videos");
 
 Template.imageView.helpers({
     images: function () {
@@ -35,7 +35,7 @@ Template.imageForm.events({
 Template.videoForm.events({
     'change .myFileInput': function (event, template) {
         FS.Utility.eachFile(event, function (file) {
-            Video.insert(file, function (err, fileObj) {
+            Videos.insert(file, function (err, fileObj) {
                 //If !err, we have inserted new doc with ID fileObj._id, and
                 //kicked off the data upload using HTTP
                 
@@ -53,17 +53,23 @@ Template.videoForm.events({
 
 Template.videoView.helpers({
     file: function () {
-        return Video.findOne(this._id);
+        return Videos.findOne(this._id);
     },
     videos: function () {
-        return Video.find(); // Where Images is an FS.Collection instance
+        return Videos.find(); // Where Images is an FS.Collection instance
     },
     isReady: function () {
-        if (this.isUploaded() && this.hasStored('video')) {
+        if (this.isUploaded() && this.hasStored('videos')) {
             return true;
         } else {
             return false;
         }
+    }
+});
+Template.videoView.events({
+    'click .deleteFileButton ': function (event) {
+      console.log("deleteFile button ", this);
+      Videos.remove({_id: this._id});
     }
 });
 

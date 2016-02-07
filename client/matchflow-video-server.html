@@ -1,22 +1,14 @@
 <head>
-    <title>matchflow-video-server</title>
+    <title>Matchflow Video Server</title>
 </head>
 
 <body>
-    <h1>I shouldn't have told you that...</h1>
-
     {{> videoForm}}
     {{> videoView}}
-    <hr />
+<!--    <hr /> 
     {{> imageForm}}
-    {{> imageView}}
-    <!--{{> hello}}-->
+    {{> imageView}}-->
 </body>
-
-<!--<template name="hello">
-  <button>Click Me</button>
-  <p>You've pressed the button {{counter}} times.</p>
-</template>-->
 
 <template name="imageForm">
     <input type="file" name="imagefile" class="myFileInput" />
@@ -41,6 +33,7 @@
 
 
 <template name="videoForm">
+    <h3>Upload Video:</h3>
     <input type="file" name="videofile" class="myFileInput" />
 </template>
 
@@ -49,8 +42,9 @@
         <div>
             {{#if isUploaded}}
                 {{#if isVideo}}
-                    <video width="300" height="200" controls>
-                        <source src={{this.url}} type={{this.type}}>
+                    <h4>{{this.url}}</h4>
+                    <video width="300" height="200">
+                        <source src="{{this.url}}" type="{{this.type}}">
                         Your browser does not support the video tag.
                     </video>
                     <button class="deleteFileButton">delete</button>
@@ -58,12 +52,4 @@
             {{/if}}
         </div>
     {{/each}}
-<!--    {{#with file}}
-        {{#if isReady}}
-            <video width="300" height="200" controls>
-                <source src={{this.url}} type={{this.type}}>
-                Your browser does not support the video tag.
-            </video>
-        {{/if}}
-    {{/with}}-->
 </template>

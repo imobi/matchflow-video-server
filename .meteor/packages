@@ -29,3 +29,4 @@ simple:rest-bearer-token-parser
 cfs:http-methods
 accounts-password
 alanning:roles
+accounts-ui

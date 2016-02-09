@@ -73,4 +73,7 @@ Template.videoView.events({
     }
 });
 
+Accounts.ui.config({
+    passwordSignupFields: "USERNAME_ONLY"
+});
 

@@ -6,8 +6,12 @@
     <header>
         {{> loginButtons}}
     </header>
-    {{> videoForm}}
-    {{> videoView}}
+    {{#if currentUser}}
+        {{> videoForm}}
+        {{> videoView}}
+    {{else}}
+        LOGGED OUT
+    {{/if}}
 <!--    <hr /> 
     {{> imageForm}}
     {{> imageView}}-->

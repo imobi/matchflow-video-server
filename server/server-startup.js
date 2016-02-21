@@ -1,7 +1,7 @@
 var SESSION = {};
 var SERVER = {
     totalSpace: 1000, // megabytes
-    userAllocation: 100
+    userAllocation: 500
 };
 // TODO take user permission code into account when allocating space
 
@@ -11,8 +11,9 @@ Meteor.startup(function () {
     });
     var createUser = function (username, password) {
         return Accounts.createUser({
-            "username": username,
-            "password": password
+            '_id': username, // set the users id to be the same as its username
+            'username': username,
+            'password': password
         });
     };
 
@@ -20,11 +21,11 @@ Meteor.startup(function () {
     JsonRoutes.ErrorMiddleware.use(RestMiddleware.handleErrorAsJson);
     // Enable cross origin requests for all endpoints 
     JsonRoutes.setResponseHeaders({
-        "Cache-Control": "no-store",
-        "Pragma": "no-cache",
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, PUT, POST, DELETE, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With"
+        'Cache-Control': 'no-store',
+        'Pragma': 'no-cache',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With'
     });
 
     // check if errors are defined
@@ -52,7 +53,7 @@ Meteor.startup(function () {
     }
 
     // **** NOTE : This is how you define a Meteor Collection > JSON response
-    Meteor.publish("getvideos", function (id, key) {
+    Meteor.publish('getvideos', function (id, key) {
         // TODO session keys and expiry must be set to 30min
         var expireIfOlderTime = new Date().getTime() - 1000 * 60 * 15; // subtract 15min
         if (SESSION[key] !== undefined && SESSION[key].timestamp > expireIfOlderTime) {
@@ -63,12 +64,12 @@ Meteor.startup(function () {
                 // TODO need to add the users space info in this request as well
                 // TODO request must only find video's for the authenticated user
                 return Videos.find(
-                        {},
-                        {fields: {_id: 1, original: 1}}
+                        { 'metadata.owner': SESSION[key].username },
+                        {fields: {_id: 1, original: 1, metadata: 1}}
                 );
             } else {
                 return Videos.find(
-                        {_id: id},
+                        { _id: id, 'metadata.owner': SESSION[key].username },
                 {fields: {_id: 1, original: 1}}
                 );
             }
@@ -81,6 +82,7 @@ Meteor.startup(function () {
                     {fields: {text: 1}}
                 );
             } else {
+                console.log('Access Denied');
                 return Errors.find(
                     {code: 100},
                     {fields: {text: 1}}
@@ -89,13 +91,14 @@ Meteor.startup(function () {
             
         }
     }, {
-        url: "videos/:0/:1",
-        httpMethod: "get"
+        url: 'videos/:0/:1',
+        httpMethod: 'get'
     });
 
     // **** NOTE : This is a json response, NOT a meteor collection > JSON response
+    // TODO change this to a POST
     // register API
-    JsonRoutes.add("get", "/register/:key/:username/:password", function (req, res, next) {
+    JsonRoutes.add('get', '/register/:key/:username/:password', function (req, res, next) {
         var key = req.params.key;
         var username = req.params.username;
         var password = req.params.password;

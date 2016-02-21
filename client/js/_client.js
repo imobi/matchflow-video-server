@@ -35,7 +35,9 @@ Template.imageForm.events({
 Template.videoForm.events({
     'change .myFileInput': function (event, template) {
         FS.Utility.eachFile(event, function (file) {
-            Videos.insert(file, function (err, fileObj) {
+            var fsFile = new FS.File(file);
+            fsFile.metadata = {owner: Meteor.user().username};
+            Videos.insert(fsFile, function (err, fileObj) {
                 //If !err, we have inserted new doc with ID fileObj._id, and
                 //kicked off the data upload using HTTP
                 
@@ -56,7 +58,7 @@ Template.videoView.helpers({
         return Videos.findOne(this._id);
     },
     videos: function () {
-        return Videos.find(); // Where Images is an FS.Collection instance
+        return Videos.find({'metadata.owner' : Meteor.user().username}); // Where Images is an FS.Collection instance
     },
     isReady: function () {
         if (this.isUploaded() && this.hasStored('videos')) {

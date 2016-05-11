@@ -1,5 +1,6 @@
 <head>
     <title>Matchflow Video Server</title>
+    <link href="http://vjs.zencdn.net/5.8.0/video-js.css" rel="stylesheet">
 </head>
 
 <body>
@@ -12,6 +13,16 @@
     {{else}}
         LOGGED OUT
     {{/if}}
+    
+    <hr>
+    <video id="my-video" class="video-js" controls preload="auto" width="640" height="264" data-setup="{}">
+        <source src="http://localhost:3005/videotest" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+    
+    
+    
+    <!--<script src="http://vjs.zencdn.net/5.8.0/video.js"></script>-->
 <!--    <hr /> 
     {{> imageForm}}
     {{> imageView}}-->
@@ -50,7 +61,7 @@
             {{#if isUploaded}}
                 {{#if isVideo}}
                     <h4>{{this.url}}</h4>
-                    <video width="300" height="200">
+                    <video class="video-js" controls preload="auto" width="640" height="264" data-setup="{}">
                         <source src="{{this.url}}" type="{{this.type}}">
                         Your browser does not support the video tag.
                     </video>

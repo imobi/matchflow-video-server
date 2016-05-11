@@ -30,3 +30,8 @@ cfs:http-methods
 accounts-password
 alanning:roles
 accounts-ui
+meteorhacks:npm
+
+
+npm-container
+cfs:filesystem

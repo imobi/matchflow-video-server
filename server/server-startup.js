@@ -6,6 +6,11 @@ var SERVER = {
 // TODO take user permission code into account when allocating space
 
 Meteor.startup(function () {
+    
+    // Set the max data length
+    // 5mb = 5 * 1024 * 1024 = 5242880;
+    HTTP.methodsMaxDataLength = 5242880;
+    
     Accounts.config({
         forbidClientAccountCreation: true
     });
@@ -64,12 +69,12 @@ Meteor.startup(function () {
                 // TODO need to add the users space info in this request as well
                 // TODO request must only find video's for the authenticated user
                 return Videos.find(
-                        { 'metadata.owner': SESSION[key].username },
-                        {fields: {_id: 1, original: 1, metadata: 1}}
+                        {'metadata.owner': SESSION[key].username},
+                {fields: {_id: 1, original: 1, metadata: 1}}
                 );
             } else {
                 return Videos.find(
-                        { _id: id, 'metadata.owner': SESSION[key].username },
+                        {_id: id, 'metadata.owner': SESSION[key].username},
                 {fields: {_id: 1, original: 1}}
                 );
             }
@@ -78,17 +83,17 @@ Meteor.startup(function () {
             if (SESSION[key] !== undefined && SESSION[key].timestamp <= expireIfOlderTime) {
                 console.log('Session expired for ' + SESSION[key].username);
                 return Errors.find(
-                    {code: 200},
-                    {fields: {text: 1}}
+                        {code: 200},
+                {fields: {text: 1}}
                 );
             } else {
                 console.log('Access Denied');
                 return Errors.find(
-                    {code: 100},
-                    {fields: {text: 1}}
+                        {code: 100},
+                {fields: {text: 1}}
                 );
             }
-            
+
         }
     }, {
         url: 'videos/:0/:1',
@@ -141,6 +146,125 @@ Meteor.startup(function () {
             data: responseData
         });
     });
+    
+    var fs = Meteor.npmRequire('fs');
+    var __dirname=fs.realpathSync('.');
+    console.log('Current Directory: '+__dirname);
+    
+    var REQUEST_MAP = {};
+        
+    // TEST
+    JsonRoutes.add('get', '/videotest/', function (req, res, next) {
+        var key = '';//req.params.key;
+        var fileObj = Videos.findOne(
+            {'_id': 'g79FN3H62Ai7AxXFh'},
+            {fields: {_id: 1, original: 1, metadata: 1}}
+        );
+        var total = fileObj.size();
+        var range = req.headers.range;
+        if (range === undefined) {
+            range = '';
+        }
+        var positions = range.replace(/bytes=/, "").split("-");
+        var start = parseInt(positions[0], 10);
+        var end = positions[1] ? parseInt(positions[1], 10) : total - 1;
+        var chunkSize = (end-start)+1;
+        
+        var headerKeyString = "bytes "+start+"-"+end+"/"+total;
+        res.writeHead(206, {
+            "Accept-Ranges":"bytes",
+            "Content-Range": headerKeyString,
+            "Content-Length": chunkSize,
+            "Content-Type": "video/mp4"
+        });
+        var data = '';
+         
+        console.log('File to stream: '+fileObj.url());
+        console.log('Requested Headers: '+headerKeyString);
+//        var testStream = fileObj.createReadStream('videos');
+        //var testStream = fs.createReadStream(__dirname+'\\'+fileObj.name());
+        if (REQUEST_MAP[headerKeyString] === undefined) {
+            REQUEST_MAP[headerKeyString] = fs.createReadStream('G:/kick.mp4');
+        }
+        //console.log('Stream: ',readStream); 
+        
+        var streamToUse = fs.createReadStream('G:/kick.mp4');
+        // I THINK ITS GETTING MULTIPLE REQUESTS
+        // NEED TO SPLIT THIS UP INTO DISTINCT REQUEST SLOTS
+//        var streamToUse = REQUEST_MAP[headerKeyString];
+//        var vidArr = [];
+        streamToUse.on('open', function() { 
+            streamToUse.pipe(res);
+            console.log('open');
+            return;
+        }).on('close', function() { 
+            console.log('close ');
+            REQUEST_MAP[headerKeyString] = undefined;
+            return;
+        }).on('readable', function() { // use this instead of "data"
+            var chunk = streamToUse.read();
+            console.log('readable - chunk:',chunk);
+            //res.write(chunk);
+//            vidArr[vidArr.length] += chunk;
+            res.write(chunk,'binary');
+            return chunk;
+        }).on('end', function() {
+            console.log('end');
+//            res.end(vidArr,'binary');
+            streamToUse.close();
+            return;
+        }).on('error', function(err) {
+            console.log('error '+err);
+            res.end('error',err);
+            return;
+        });
+        
+        //REQUEST_MAP[headerKeyString].pipe(res);
+        
+
+        
+//        
+//        console.log('file: '+file.size());
+//        fs.stat(file.url(), function (err) {
+//            var total = file.size();
+//            var end = positions[1] ? parseInt(positions[1], 10) : total - 1;
+//            var chunksize = (end - start) + 1;
+//
+//            res.writeHead(206, {
+//                "Content-Range": "bytes " + start + "-" + end + "/" + total,
+//                "Accept-Ranges": "bytes",
+//                "Content-Length": chunksize,
+//                "Content-Type": "video/mp4"
+//            });
+//
+//            var stream = fs.createReadStream(file.url(), {start: start, end: end})
+//                .on("open", function () {
+//                        stream.pipe(res);
+//                })
+//                .on("error", function (err) {
+//                    res.end(err);
+//                });
+//        });
+    });
+
+//
+//    var mongoDB = Meteor.npmRequire('mongodb');
+//    var Grid = Meteor.npmRequire('gridfs-stream');
+//
+//    // create or use an existing mongodb-native db instance
+//    var db = mongoDB.Db;
+//    db.open(function(err, db) {
+//        var gfs = Grid(db, mongoDB);
+//        db.authenticate('admin', '123456', function(err, result) {
+//            //Can do queries here
+//          
+//          
+//            db.close();
+//        });
+//    });
+    
+
+
 });
 
 
